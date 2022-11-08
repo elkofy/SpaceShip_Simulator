@@ -1,0 +1,19 @@
+{
+  "name": "spaceship_simulator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+		"dev": "nodemon ./src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "latest",
+		"nodemon": "latest",
+    "ts-node": "latest"
+  }
+}
