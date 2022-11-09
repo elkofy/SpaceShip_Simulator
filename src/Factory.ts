@@ -1,4 +1,4 @@
-import { VeryLegacyCode,Decorator,DecoratorA,DecoratorB } from "./Decorator";
+import { VeryLegacyCode, Decorator, DecoratorA, DecoratorB } from "./Decorator";
 
 export abstract class OldClassFactory {
   public abstract factoryMethod(type: string): VeryLegacyCode;
@@ -11,9 +11,11 @@ export class OldClassCreator extends OldClassFactory {
       case "dec":
         return new Decorator(new VeryLegacyCode());
       case "decA":
-        return  new DecoratorA(new VeryLegacyCode());
+        return new DecoratorA(new VeryLegacyCode());
       case "decB":
         return new DecoratorB(new VeryLegacyCode());
+      case "decAB":
+        return new DecoratorA(new DecoratorB(new VeryLegacyCode()));
       default:
         return new VeryLegacyCode();
     }
