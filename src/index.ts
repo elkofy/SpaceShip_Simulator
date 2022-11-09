@@ -1,9 +1,12 @@
 import { Observer, EventManager } from "./EventManager";
 import { VeryLegacyCode, DecoratorA, DecoratorB } from "./Decorator";
 import { OldClassCreator } from "./Factory";
-import type { HeatSensor,MotionSensor,Sensor } from './Types';
-import  { company } from './Types';
-import { Spaceship } from "./Class/SpaceShip";
+import type { HeatSensor, MotionSensor, Sensor } from "./Types";
+import { company } from "./Types";
+import { Spaceship } from "./Class/Spaceship";
+import { SensorFactoryImpl } from "./Factories/SensorFactory";
+import { Cockpit } from "./Class/Cockpit";
+
 const eventManager = EventManager.getInstance();
 const observerComptable: Observer = {
   update(data: any) {
@@ -38,24 +41,23 @@ const decoratorB = new DecoratorB(oldClass);
 
 const OGFactory = new OldClassCreator();
 const decorator = OGFactory.factoryMethod("decA");
-//console.log(decorator.veryComplex()); 
-let heatSensor:HeatSensor = {
-  temperature:55,
-  company: company.NASA
-}
-let motionSensor:MotionSensor = {
-  speed:55,
-  company: company.BOEING
-}
-let sensor_1:Sensor = {
-  id:'H00DHZU',
-  type:heatSensor,
-}
-let sensor_2:Sensor = {
-  id:'H00DHZU',
-  type:motionSensor,
-}
-let Sensors:Sensor[] = [sensor_1,sensor_2]
+//console.log(decorator.veryComplex());
+eventManager.on("mauvais resultat", observerComptable);
 
-const Ariane= new Spaceship('ariane',Sensors);
-Ariane.getSensorValue(sensor_1.id)
+let sensor_1 = SensorFactoryImpl.prototype.createBasicHeatsensor();
+let sensor_2 = SensorFactoryImpl.prototype.createBasicMotionsensor();
+const cockpitObeserver: Observer = {
+  update(data) {
+    console.log("data", data);
+  },
+};
+
+let Sensors: Sensor[] = [sensor_1, sensor_2];
+let cockpit = new Cockpit("Cockpit_1", cockpitObeserver);
+const Ariane = new Spaceship("ariane", Sensors);
+eventManager.on(
+  Ariane.getSensorType(sensor_1.id) || "unkown",
+  cockpitObeserver
+);
+Ariane.emitSensorValue(sensor_1.id);
+//console.log(Ariane.getSensorValue(sensor_1.id));
