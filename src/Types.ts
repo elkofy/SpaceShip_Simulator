@@ -16,10 +16,10 @@ export type MotionSensor = {
 
 export type Sensor = {
   id: string;
-  type: HeatSensor | MotionSensor | undefined;
+  type: HeatSensor | MotionSensor ;
 };
+
 export function isMotion(
-  sensor: HeatSensor | MotionSensor | undefined
+  sensor: HeatSensor | MotionSensor 
 ): sensor is MotionSensor {
-  return (sensor as MotionSensor).speed !== undefined;
-}
+  return (sensor as MotionSensor).speed !== undefined;}

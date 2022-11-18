@@ -1,63 +1,127 @@
 import { Observer, EventManager } from "./EventManager";
 import { VeryLegacyCode, DecoratorA, DecoratorB } from "./Decorator";
 import { OldClassCreator } from "./Factory";
-import type { HeatSensor, MotionSensor, Sensor } from "./Types";
-import { company } from "./Types";
+import type { Sensor } from "./Types";
 import { Spaceship } from "./Class/Spaceship";
 import { SensorFactoryImpl } from "./Factories/SensorFactory";
 import { Cockpit } from "./Class/Cockpit";
+import { MessageAdapter } from "./Class/MessageAdapter";
+import { Message } from "./Class/Message";
 
 const eventManager = EventManager.getInstance();
-const observerComptable: Observer = {
-  update(data: any) {
-    console.log("Je suis comptable", data);
-  },
+
+const Divider = () => {
+  console.log("⭐ ============================ ⭐");
 };
+const Scenario = () => {
+  console.log("Scenario starts");
+  Divider();
+  console.log("Sensors are created");
+  let sensor_1 = SensorFactoryImpl.prototype.createBasicHeatsensor();
+  Divider();
+  console.log("Heat sensor is created");
+  let sensor_2 = SensorFactoryImpl.prototype.createBasicMotionsensor();
+  Divider();
+  console.log("Motion sensor is created");
+  let Sensors: Sensor[] = [sensor_1, sensor_2];
+  Divider();
+  console.log("CockPit is created");
+  const observerCockPit: Observer = {
+    update(data: Message) {
+      console.log(data);
+      let message = new MessageAdapter(data);
+      console.log("Je suis le cockpit", message.getText());
+    },
+  };
+  Divider();
+  console.log("Spaceship is created");
+  const Ariane = new Spaceship("ariane", observerCockPit, Sensors);
+  Ariane.getSensorType(sensor_1.id) || "unknown";
+  Ariane.getSensorType(sensor_2.id) || "unknown";
 
-const observerDeveloper: Observer = {
-  update(data) {
-    console.log("Je suis dev");
-  },
+  eventManager.on(
+    Ariane.getSensorType(sensor_1.id) || "unknown",
+    observerCockPit
+  );
+
+  eventManager.on(
+    Ariane.getSensorType(sensor_2.id) || "unknown",
+    observerCockPit
+  );
+  Divider();
+  console.log("Sensors are linked to the eventManager");
+  Divider();
+  console.log("Sensors send their null values to the eventManager");
+  Ariane.emitSensorValue(sensor_1.id);
+  Ariane.emitSensorValue(sensor_2.id);
+  Divider();
+  console.log("CockPit receives the null values");
+  Divider();
+  console.log("Spaceship displays threat level");
+  console.log(Ariane.getThreatLevel());
+  Divider();
+  console.log("Heat is increased");
+  Divider();
+  sensor_1.increaseSensorValue();
+  console.log("Sensors send their new values to the eventManager");
+  Divider();
+  Ariane.emitSensorValue(sensor_1.id);
+  Ariane.getShieldsStatus();
+  console.log("Spaceship is saved");
+  Divider();
+  console.log("Heat is decreased");
+  sensor_1.decreaseSensorValue();
+  Ariane.emitSensorValue(sensor_1.id);
+  Divider();
+  console.log("CockPit turns off the spaceshield");
+  Ariane.getShieldsStatus();
+  Divider();
+  console.log("Spaceship is saved");
+  Divider();
+  console.log("Motion is increased");
+  sensor_2.increaseSensorValue();
+  Ariane.emitSensorValue(sensor_2.id);
+  Divider();
+  console.log("Spaceship is saved");
+  Divider();
+  console.log("Motion is decreased");
+  sensor_2.decreaseSensorValue();
+  Ariane.emitSensorValue(sensor_2.id);
+  Divider();
+  console.log("Spaceship is saved");
+  /*
+  console.log("Sensors send their new values to the eventManager");
+  Divider();
+  console.log("Motion is increased");
+  Divider();
+  console.log("Sensors send their new values to the eventManager");
+  Divider();
+  console.log("CockPit turns on the spaceshield");
+  Divider();
+  console.log("Spaceship is saved");
+  Divider();
+  console.log("Motion is decreased");
+  Divider();
+  console.log("Sensors send their new values to the eventManager");
+  Divider();
+  console.log("CockPit turns off the spaceshield");
+  Divider();
+  console.log("Spaceship is saved");
+  Divider();
+  console.log("An Asteroid is detected");
+  Divider();
+  console.log("Sensors send their new values to the eventManager");
+  Divider();
+  console.log("CockPit displays threat level");
+  Divider();
+  console.log("Thread level is high");
+  Divider();
+  console.log("Spaceship shoots missiles");
+  Divider();
+  console.log("Asteroid is destroyed");
+  Divider();
+  console.log("Spaceship is saved");
+  Divider();
+  console.log("Scenario ends");*/
 };
-const observerPatron: Observer = {
-  update(data) {
-    console.log("Je suis Patrron");
-  },
-};
-
-eventManager.on("mauvais resultat", observerComptable);
-eventManager.on("réduction salaire", observerComptable);
-eventManager.on("mauvais resultat", observerPatron);
-eventManager.on("mauvais resultat", observerComptable);
-//eventManager.emit("mauvais resultat", { name: "hehe" });
-
-const oldClass = new VeryLegacyCode();
-const decoratorA = new DecoratorA(oldClass);
-const decoratorB = new DecoratorB(oldClass);
-
-//console.log(oldClass.veryComplex());
-//console.log(decoratorA.veryComplex());
-//console.log(decoratorB.veryComplex());
-
-const OGFactory = new OldClassCreator();
-const decorator = OGFactory.factoryMethod("decA");
-//console.log(decorator.veryComplex());
-eventManager.on("mauvais resultat", observerComptable);
-
-let sensor_1 = SensorFactoryImpl.prototype.createBasicHeatsensor();
-let sensor_2 = SensorFactoryImpl.prototype.createBasicMotionsensor();
-const cockpitObeserver: Observer = {
-  update(data) {
-    console.log("data", data);
-  },
-};
-
-let Sensors: Sensor[] = [sensor_1, sensor_2];
-let cockpit = new Cockpit("Cockpit_1", cockpitObeserver);
-const Ariane = new Spaceship("ariane", Sensors);
-eventManager.on(
-  Ariane.getSensorType(sensor_1.id) || "unkown",
-  cockpitObeserver
-);
-Ariane.emitSensorValue(sensor_1.id);
-//console.log(Ariane.getSensorValue(sensor_1.id));
+Scenario();

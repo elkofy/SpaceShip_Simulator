@@ -1,4 +1,5 @@
-import { Sensor, MotionSensor, HeatSensor, isMotion, company } from "../Types";
+import { Sensor } from "../Class/Sensor";
+import { MotionSensor, HeatSensor, isMotion, company } from "../Types";
 
 export interface SensorFactory {
   createBasicHeatsensor(): Sensor;
@@ -6,22 +7,16 @@ export interface SensorFactory {
 }
 
 export class SensorFactoryImpl implements SensorFactory {
-    createBasicHeatsensor(): Sensor {
-    return {
-      id: "H00DHZU",
-      type: {
-        temperature: 0,
-        company: company.NASA,
-      },
-    };
+  createBasicHeatsensor(): Sensor {
+    return new Sensor("Temp2000", company.BOEING, {
+      temperature: 0,
+      company: company.BOEING,
+    });
   }
   createBasicMotionsensor(): Sensor {
-    return {
-      id: "H00DHZU",
-      type: {
-        speed: 0,
-        company: company.BOEING,
-      },
-    };
+    return new Sensor("Speed2000", company.NASA, {
+      speed: 0,
+      company: company.BOEING,
+    });
   }
 }

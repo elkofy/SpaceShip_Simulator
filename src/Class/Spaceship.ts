@@ -1,58 +1,85 @@
-import { EventManager } from "../EventManager";
-import { Sensor, MotionSensor, HeatSensor, isMotion } from "../Types";
+import { EventManager, Observer } from "../EventManager";
+import { MotionSensor, HeatSensor, isMotion } from "../Types";
+import { Message } from "./Message";
+import { Sensor } from "./Sensor";
 
 export class Spaceship {
   name: string;
-  shieldsStaus: boolean = false;
+  shieldsStatus: boolean = false;
   threatLevel: number = 0;
+  cockpit: Observer;
   eventManager: EventManager = EventManager.getInstance();
+  sensors: any[] = [];
 
-  sensors: Sensor[] = [];
-
-  constructor(name: string, sensors: Sensor[]) {
+  constructor(name: string, cockpit: Observer, sensors: any[]) {
     this.name = name;
+    this.cockpit = cockpit;
     this.sensors = sensors;
   }
 
   changeShieldStatus() {
-    this.shieldsStaus = !this.shieldsStaus;
+    this.shieldsStatus = !this.shieldsStatus;
+    console.log(`Shields are ${this.shieldsStatus ? "ON" : "OFF"}`);
   }
 
-  getThreatLevel() {}
+  getShieldsStatus() {
+    console.log(`Shields are ${this.shieldsStatus ? "ON" : "OFF"}`);
+    return this.shieldsStatus;
+  }
 
-  setThratLevel() {}
+  fireMissile() {
+    this.eventManager.emit("missile", this);
+  }
 
-  getSensor(id: string): Sensor | undefined {
+  getThreatLevel() {
+    return this.threatLevel;
+  }
+
+  setThreatLevel(threat: number) {
+    this.threatLevel = threat > 0 ? threat : 0;
+    if (threat > 0 && this.getShieldsStatus() === false) {
+      this.changeShieldStatus();
+    }
+    else if (threat == 0 && this.getShieldsStatus() === true) {
+      this.changeShieldStatus();
+    }
+    
+  }
+
+  getSensor(id: string) {
     return this.sensors.find((sensor) => sensor.id === id);
   }
-  addSensor(sensor: Sensor) {
+
+  addSensor(sensor: any) {
     this.sensors.push(sensor);
   }
 
   getSensorValue(id: string): number | undefined {
     const sensor = this.getSensor(id);
-    let sensorValue: number | undefined;
-
-    isMotion(sensor?.type)
-      ? (sensorValue = sensor?.type.speed)
-      : (sensorValue = sensor?.type?.temperature);
-    return sensorValue;
+    if (sensor) {
+      return isMotion(sensor?.type)
+        ? sensor?.type.speed
+        : (sensor?.type.temperature as number);
+    }
   }
 
   getSensorType(id: string): string | undefined {
     const sensor = this.getSensor(id);
-    let sensorType: string | undefined;
-    isMotion(sensor?.type) ? (sensorType = "motion") : (sensorType = "heat");
-    return sensorType;
+    return isMotion(sensor?.type) ? "motion" : "heat";
   }
 
   emitSensorValue(id: string) {
+    const sensor: Sensor = this.getSensor(id);
     const sensorValue = this.getSensorValue(id);
     const sensorType = this.getSensorType(id) || "unknown";
-    if (sensorValue!==undefined) {
-      console.log(sensorType, sensorValue);
-      this.eventManager.emit(sensorType, sensorValue);
+    if (sensorValue !== undefined) {
+      if (sensorValue > 0) {
+        this.setThreatLevel(this.getThreatLevel() + 1);
+      } else if (sensorValue == 0) {
+        this.setThreatLevel(0);
+      }
+      sensor.sendMessage(this.eventManager);
     }
-    return[ sensorType, sensorValue];
+    return [sensorType, sensorValue];
   }
 }
