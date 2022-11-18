@@ -7,6 +7,7 @@ export class Spaceship {
   name: string;
   shieldsStatus: boolean = false;
   threatLevel: number = 0;
+  missilesLaunched: number = 0;
   cockpit: Observer;
   eventManager: EventManager = EventManager.getInstance();
   sensors: any[] = [];
@@ -28,7 +29,7 @@ export class Spaceship {
   }
 
   fireMissile() {
-    this.eventManager.emit("missile", this);
+    console.log("Threat Level is too high ! Missiles fired !");
   }
 
   getThreatLevel() {
@@ -39,11 +40,11 @@ export class Spaceship {
     this.threatLevel = threat > 0 ? threat : 0;
     if (threat > 0 && this.getShieldsStatus() === false) {
       this.changeShieldStatus();
-    }
-    else if (threat == 0 && this.getShieldsStatus() === true) {
+    } else if (threat == 0 && this.getShieldsStatus() === true) {
       this.changeShieldStatus();
+    } else if (this.threatLevel >= 2) {
+      this.fireMissile();
     }
-    
   }
 
   getSensor(id: string) {
